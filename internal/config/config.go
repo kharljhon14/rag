@@ -24,11 +24,11 @@ func Load() Config {
 	}
 
 	if cfg.BaseURL == "" {
-		cfg.BaseURL = "https://api.deepseek.com"
+		cfg.BaseURL = "https://api.deepseek.com/"
 	}
 
 	if cfg.Model == "" {
-		cfg.Model = "deepseek-v4-pro"
+		cfg.Model = "deepseek-flash"
 	}
 
 	return cfg
