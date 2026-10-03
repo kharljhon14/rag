@@ -12,10 +12,6 @@ import (
 )
 
 func main() {
-	// Setup the app
-	// Setup config
-	// Setup LLM client
-	// Setup the REPL
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
