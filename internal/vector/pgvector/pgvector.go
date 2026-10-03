@@ -63,7 +63,7 @@ func ensureExtension(ctx context.Context, dsn string) error {
 		return err
 	}
 	defer conn.Close(ctx)
-	_, err = conn.Exec(ctx, "CREATE EXTENSION IF NOT EXIST vector")
+	_, err = conn.Exec(ctx, "CREATE EXTENSION IF NOT EXISTS vector")
 	return err
 }
 
