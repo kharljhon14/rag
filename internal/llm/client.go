@@ -2,13 +2,12 @@ package llm
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"io"
 	"strings"
 
-	deepseek "github.com/cohesion-org/deepseek-go"
 	"github.com/kharljhon14/rag/internal/config"
+	"github.com/openai/openai-go/v3"
+	"github.com/openai/openai-go/v3/option"
 )
 
 type Message struct {
@@ -18,48 +17,33 @@ type Message struct {
 
 type Client struct {
 	cfg config.Config
-	sdk *deepseek.Client
+	sdk openai.Client
 }
 
 func New(cfg config.Config) (*Client, error) {
-	opts := []deepseek.Option{}
+	opts := []option.RequestOption{option.WithAPIKey(cfg.APIKey)}
 
 	if cfg.BaseURL != "" {
-		opts = append(opts, deepseek.WithBaseURL(cfg.BaseURL))
+		opts = append(opts, option.WithBaseURL(cfg.BaseURL))
 	}
 
-	sdk, err := deepseek.NewClientWithOptions(cfg.APIKey, opts...)
-	if err != nil {
-		return nil, fmt.Errorf("deepseek new client options: %w", err)
-	}
+	sdk := openai.NewClient(opts...)
 
 	return &Client{cfg: cfg, sdk: sdk}, nil
 }
 
 func (c *Client) ChatStream(ctx context.Context, messages []Message, onDelta func(string)) (Message, error) {
-	stream, err := c.sdk.CreateChatCompletionStream(ctx, &deepseek.StreamChatCompletionRequest{
+	stream := c.sdk.Chat.Completions.NewStreaming(ctx, openai.ChatCompletionNewParams{
 		Model:    c.cfg.Model,
 		Messages: toSDKMessages(messages),
-		Stream:   true,
 	})
-	if err != nil {
-		return Message{}, fmt.Errorf("create chat completion options: %w", err)
-	}
 	defer stream.Close()
 
 	var content strings.Builder
 	role := "assistant"
 
-	for {
-		response, err := stream.Recv()
-		if errors.Is(err, io.EOF) {
-			fmt.Println("\n stream finished")
-			break
-		}
-
-		if err != nil {
-			return Message{}, fmt.Errorf("\nstream error: %v\n", err)
-		}
+	for stream.Next() {
+		response := stream.Current()
 
 		for _, choice := range response.Choices {
 			delta := choice.Delta
@@ -76,20 +60,26 @@ func (c *Client) ChatStream(ctx context.Context, messages []Message, onDelta fun
 		}
 	}
 
+	if err := stream.Err(); err != nil {
+		return Message{}, fmt.Errorf("\nstream error: %v\n", err)
+	}
+
+	fmt.Println("\n stream finished")
+
 	return Message{Role: role, Content: content.String()}, nil
 }
 
-func toSDKMessages(messages []Message) []deepseek.ChatCompletionMessage {
-	out := make([]deepseek.ChatCompletionMessage, 0, len(messages))
+func toSDKMessages(messages []Message) []openai.ChatCompletionMessageParamUnion {
+	out := make([]openai.ChatCompletionMessageParamUnion, 0, len(messages))
 
 	for _, m := range messages {
 		switch m.Role {
 		case "system":
-			out = append(out, deepseek.ChatCompletionMessage{Role: deepseek.ChatMessageRoleSystem, Content: m.Content})
+			out = append(out, openai.SystemMessage(m.Content))
 		case "assistant":
-			out = append(out, deepseek.ChatCompletionMessage{Role: deepseek.ChatMessageRoleAssistant, Content: m.Content})
+			out = append(out, openai.AssistantMessage(m.Content))
 		default:
-			out = append(out, deepseek.ChatCompletionMessage{Role: deepseek.ChatMessageRoleUser, Content: m.Content})
+			out = append(out, openai.UserMessage(m.Content))
 		}
 	}
 

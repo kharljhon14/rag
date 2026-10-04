@@ -21,7 +21,7 @@ func Load() Config {
 
 	cfg := Config{
 		BaseURL:          os.Getenv("DEEPSEEK_BASE_URL"),
-		APIKey:           os.Getenv("DEEKSEEK_API_KEY"),
+		APIKey:           os.Getenv("DEEPSEEK_API_KEY"),
 		Model:            os.Getenv("DEEPSEEK_MODEL"),
 		SystemPromptFile: os.Getenv("SYSTEM_PROMPT_FILE"),
 		DatabaseURL:      os.Getenv("DATABASE_URL"),
