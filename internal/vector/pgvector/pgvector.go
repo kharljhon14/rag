@@ -74,7 +74,7 @@ func (s *Store) migrate(ctx context.Context, dim int) error {
 		content TEXT NOT NULL,
 		metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
 		embedding vector(%d) NOT NULL,
-		created_at TIMESTAMPZ NOT NULL DEFAULT NOW())`, dim),
+		created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`, dim),
 		`CREATE INDEX IF NOT EXISTS documents_embedding_idx
 			ON documents USING hnsw (embedding vector_cosine_ops)`,
 	}
@@ -115,7 +115,7 @@ func (s *Store) Upsert(ctx context.Context, docs []vector.Document) error {
 		ON CONFLICT (id) DO UPDATE SET
 			content = EXCLUDED.content,
 			metadata = EXCLUDED.metadata,
-			embedding = ECLUDED.embedding
+			embedding = EXCLUDED.embedding
 		`
 
 	for _, d := range docs {
