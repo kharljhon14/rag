@@ -15,10 +15,7 @@ import (
 func Run(ctx context.Context, cfg config.Config) error {
 	logger := log.New(os.Stderr, "[rag] ", log.LstdFlags)
 
-	client, err := llm.New(cfg)
-	if err != nil {
-		return err
-	}
+	client := llm.New(cfg)
 
 	store, err := openStore(ctx, cfg)
 	if err != nil {

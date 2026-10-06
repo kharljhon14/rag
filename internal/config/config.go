@@ -14,6 +14,11 @@ type Config struct {
 	SystemPromptFile string
 	DatabaseURL      string
 	EmbeddingDim     int
+	EmbeddingBaseUrl string
+	EmbeddingAPIKey  string
+	EmbeddingModel   string
+	IngestDir        string
+	ProcessDir       string
 }
 
 func Load() Config {
@@ -26,6 +31,11 @@ func Load() Config {
 		SystemPromptFile: os.Getenv("SYSTEM_PROMPT_FILE"),
 		DatabaseURL:      os.Getenv("DATABASE_URL"),
 		EmbeddingDim:     atoiOr(os.Getenv("EMBEDDING_DIM"), 0),
+		EmbeddingBaseUrl: os.Getenv("EMBEDDING_BASE_URL"),
+		EmbeddingAPIKey:  os.Getenv("EMBEDDING_API_KEY"),
+		EmbeddingModel:   os.Getenv("EMBEDDING_MODEL"),
+		IngestDir:        os.Getenv("INGEST_DIR"),
+		ProcessDir:       os.Getenv("PROCESS_DIR"),
 	}
 
 	if cfg.BaseURL == "" {
@@ -38,6 +48,22 @@ func Load() Config {
 
 	if cfg.EmbeddingDim == 0 {
 		cfg.EmbeddingDim = 768
+	}
+
+	if cfg.EmbeddingBaseUrl == "" {
+		cfg.EmbeddingBaseUrl = cfg.BaseURL
+	}
+
+	if cfg.EmbeddingModel == "" {
+		cfg.EmbeddingModel = "nomic-embed-text"
+	}
+
+	if cfg.IngestDir == "" {
+		cfg.IngestDir = "./documents"
+	}
+
+	if cfg.ProcessDir == "" {
+		cfg.ProcessDir = "./documents/processed"
 	}
 
 	return cfg
