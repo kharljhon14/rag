@@ -76,8 +76,6 @@ func (c *Client) ChatStream(ctx context.Context, messages []Message, onDelta fun
 		return Message{}, fmt.Errorf("\nstream error: %v\n", err)
 	}
 
-	fmt.Println("\n stream finished")
-
 	return Message{Role: role, Content: content.String()}, nil
 }
 

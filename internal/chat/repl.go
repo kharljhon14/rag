@@ -44,6 +44,9 @@ func RunREPL(ctx context.Context, client *llm.Client, retriver *rag.Retriver, op
 			return nil
 		}
 
+		spin := startSpinner("thinking")
+		var stopOnce sync.Once
+
 		history = append(history, llm.Message{Role: "user", Content: input})
 		turn := history
 		if retriver != nil {
@@ -56,8 +59,6 @@ func RunREPL(ctx context.Context, client *llm.Client, retriver *rag.Retriver, op
 			}
 		}
 
-		spin := startSpinner("thinking")
-		var stopOnce sync.Once
 		reply, err := client.ChatStream(ctx, turn, func(s string) {
 			stopOnce.Do(spin.Stop)
 			fmt.Print(s)

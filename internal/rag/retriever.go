@@ -77,7 +77,7 @@ func (r *Retriver) buildQuery(ctx context.Context, history []llm.Message) string
 
 func lastUserMessage(history []llm.Message) string {
 	for i := len(history) - 1; i >= 0; i-- {
-		if history[i].Role == "User" {
+		if history[i].Role == "user" {
 			return history[i].Content
 		}
 	}

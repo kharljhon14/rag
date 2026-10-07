@@ -9,7 +9,7 @@ Prinny Prints & Crafts is a small home-based print and craft shop that makes per
 - Shop name: Prinny Prints & Crafts
 - Messenger: Prinny Prints & Crafts
 - Email: prinnyprintscrafts@yahoo.com
-- Location: [CITY / BARANGAY, PROVINCE] (pickup by appointment only)
+- Location: [Orion / Lati, Bataan] (pickup by appointment only)
 - Business hours: Monday to Saturday, 9:00 AM – 6:00 PM. Closed Sundays and holidays.
 - Messages sent after hours are answered the next business day.
 
