@@ -56,7 +56,7 @@ func Watch(ctx context.Context, opts Options, embedder llm.Embedder, store vecto
 			return
 		}
 
-		logger.Printf("ingestes %s", filepath.Base(path))
+		logger.Printf("ingested %s", filepath.Base(path))
 	}
 
 	entries, err := os.ReadDir(opts.SourceDir)

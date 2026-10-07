@@ -32,11 +32,11 @@ func newClient(cfg config.Config, baseUrl, apiKey string) *Client {
 	opts := []option.RequestOption{option.WithAPIKey(cfg.APIKey)}
 
 	if baseUrl != "" {
-		opts = append(opts, option.WithBaseURL(cfg.BaseURL))
+		opts = append(opts, option.WithBaseURL(baseUrl))
 	}
 
 	if apiKey != "" {
-		opts = append(opts, option.WithBaseURL(cfg.APIKey))
+		opts = append(opts, option.WithAPIKey(apiKey))
 	}
 
 	sdk := openai.NewClient(opts...)
