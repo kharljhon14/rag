@@ -10,6 +10,7 @@ import (
 	"github.com/kharljhon14/rag/internal/config"
 	"github.com/kharljhon14/rag/internal/ingest"
 	"github.com/kharljhon14/rag/internal/llm"
+	"github.com/kharljhon14/rag/internal/rag"
 	"github.com/kharljhon14/rag/internal/vector"
 	"github.com/kharljhon14/rag/internal/vector/pgvector"
 )
@@ -48,7 +49,16 @@ func Run(parentCtx context.Context, cfg config.Config) error {
 		logger.Printf("watching %s for new documents", cfg.IngestDir)
 	}
 
-	replErr := chat.RunREPL(ctx, client, chat.Options{
+	// Get Retriver and Rewriter
+	var retriever *rag.Retriver
+	if store != nil {
+		retriever = rag.New(embedder, store, rag.Options{
+			TopK:     5,
+			Rewriter: rag.NewRewriter(client),
+		})
+	}
+
+	replErr := chat.RunREPL(ctx, client, retriever, chat.Options{
 		SystemPromptFile: cfg.SystemPromptFile,
 	})
 	cancel()
