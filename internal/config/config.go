@@ -64,6 +64,9 @@ func Load() Config {
 
 	if cfg.ProcessDir == "" {
 		cfg.ProcessDir = "./documents/processed"
+		if cfg.EmbeddingAPIKey == "" {
+			cfg.EmbeddingAPIKey = cfg.APIKey
+		}
 	}
 
 	return cfg
