@@ -79,7 +79,7 @@ func startSpinner(label string) *spinner {
 
 		//Frames for spinner
 		frames := []string{"|", "/", "-", "\\"}
-		t := time.NewTicker(80 * time.Microsecond)
+		t := time.NewTicker(80 * time.Millisecond)
 		defer t.Stop()
 		i := 0
 		for {
