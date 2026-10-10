@@ -19,6 +19,9 @@ type Config struct {
 	EmbeddingModel   string
 	IngestDir        string
 	ProcessDir       string
+	HTTPAddr         string
+	ImageDir         string
+	VisionModel      string
 }
 
 func Load() Config {
@@ -36,6 +39,9 @@ func Load() Config {
 		EmbeddingModel:   os.Getenv("EMBEDDING_MODEL"),
 		IngestDir:        os.Getenv("INGEST_DIR"),
 		ProcessDir:       os.Getenv("PROCESS_DIR"),
+		HTTPAddr:         os.Getenv("HTTP_ADDR"),
+		ImageDir:         os.Getenv("IMAGE_DIR"),
+		VisionModel:      os.Getenv("VISION_MODEL"),
 	}
 
 	if cfg.BaseURL == "" {
@@ -67,6 +73,10 @@ func Load() Config {
 		if cfg.EmbeddingAPIKey == "" {
 			cfg.EmbeddingAPIKey = cfg.APIKey
 		}
+	}
+
+	if cfg.ImageDir == "" {
+		cfg.ImageDir = "./documents/images"
 	}
 
 	return cfg

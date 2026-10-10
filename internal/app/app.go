@@ -13,6 +13,7 @@ import (
 	"github.com/kharljhon14/rag/internal/rag"
 	"github.com/kharljhon14/rag/internal/vector"
 	"github.com/kharljhon14/rag/internal/vector/pgvector"
+	"github.com/kharljhon14/rag/internal/web"
 )
 
 func Run(parentCtx context.Context, cfg config.Config) error {
@@ -56,6 +57,26 @@ func Run(parentCtx context.Context, cfg config.Config) error {
 			TopK:     5,
 			Rewriter: rag.NewRewriter(client),
 		})
+	}
+
+	if cfg.HTTPAddr != "" {
+		srv, err := web.New(client, embedder, retriever, web.Options{
+			Addr:             cfg.HTTPAddr,
+			SystemPromptFile: cfg.SystemPromptFile,
+			Store:            store,
+			ProcessedDir:     cfg.ProcessDir,
+			ImagesDir:        cfg.ImageDir,
+		})
+		if err != nil {
+			logger.Printf("web server disabled: %v", err)
+		} else {
+			wg.Go(func() {
+				if err := srv.Run(ctx, cfg.HTTPAddr); err != nil && ctx.Err() == nil {
+					logger.Printf("web server stopped: %v", err)
+				}
+			})
+			logger.Printf("web chat at http://localhost%s/chat", cfg.HTTPAddr)
+		}
 	}
 
 	replErr := chat.RunREPL(ctx, client, retriever, chat.Options{
