@@ -24,6 +24,9 @@ import (
 //go:embed templates/*.go.html
 var templateFS embed.FS
 
+//go:embed static
+var staticFS embed.FS
+
 type Options struct {
 	Addr             string
 	SystemPromptFile string
@@ -73,6 +76,7 @@ func (s *Server) Routes() http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.Recoverer)
 
+	r.Handle("/static/*", http.FileServerFS(staticFS))
 	r.Get("/chat", s.handleChatPage)
 	r.Post("/api/chat/stream", s.handleChatStream)
 

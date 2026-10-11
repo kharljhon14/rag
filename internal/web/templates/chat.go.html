@@ -4,81 +4,154 @@
 <meta charset="utf-8">
 <title>{{.Title}}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/static/avatar.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+<script>
+  // Brand palette sampled from the Prinny logo: coral ink on warm
+  // paper, with the logo's grey offset shadow reused for depth.
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          prinny: {
+            DEFAULT: "#E05A47",
+            dark:    "#C84836",
+            soft:    "#FBE7E2",
+            ink:     "#3D3532",
+            muted:   "#7A6F69",
+            shadow:  "#5E5752",
+            paper:   "#FAF5F1",
+            card:    "#FFFDFB",
+            line:    "#EADDD4",
+          },
+        },
+        fontFamily: {
+          sans: ["Nunito", "ui-sans-serif", "system-ui", "sans-serif"],
+        },
+        boxShadow: {
+          retro:    "3px 3px 0 0 #5E5752",
+          "retro-sm": "2px 2px 0 0 #5E5752",
+        },
+      },
+    },
+  };
+</script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+<style>
+  /* Subtle paper grain so the page feels like the logo's backdrop. */
+  body {
+    background-color: #FAF5F1;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.3 0 0 0 0 0.28 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  /* The welcome screen stands in for the log until the first message. */
+  #log:empty { display: none; }
+  main:has(#log > *) #welcome { display: none; }
+  #log::-webkit-scrollbar { width: 8px; }
+  #log::-webkit-scrollbar-thumb { background: #EADDD4; border-radius: 9999px; }
+</style>
 </head>
-<body class="h-full bg-slate-100 text-slate-900">
-  <div class="mx-auto flex h-full max-w-3xl flex-col p-4">
-    <header class="mb-4 flex items-center justify-between">
-      <h1 class="text-lg font-semibold">{{.Title}}</h1>
-    </header>
+<body class="h-full font-sans text-prinny-ink antialiased">
+  <div class="flex h-full flex-col md:grid md:grid-cols-[18rem_1fr]">
+    <aside class="flex items-center gap-3 border-b-2 border-prinny-line bg-prinny-card/80 px-4 py-3 md:flex-col md:items-stretch md:gap-6 md:border-b-0 md:border-r-2 md:px-6 md:py-8">
+      <img src="/static/logo.png" alt="{{.Title}}" class="h-10 w-auto select-none md:h-auto md:w-full" draggable="false">
 
-    <div id="log" class="flex-1 space-y-3 overflow-y-auto rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200"></div>
+      <div class="hidden rounded-3xl border-2 border-prinny-shadow bg-prinny p-5 text-white shadow-retro md:block">
+        <img src="/static/avatar.svg" alt="" class="-mt-1 mb-3 h-14 w-14 select-none" draggable="false">
+        <p class="text-lg font-extrabold leading-tight">Hi, I'm Prinny!</p>
+        <p class="mt-1 text-sm text-white/90">Your little helper for everything prints &amp; crafts.</p>
+      </div>
+    </aside>
 
-    <form id="form" class="mt-4 flex gap-2">
-      <input type="file" id="file" accept=".txt,.md,.markdown,text/plain,text/markdown" class="hidden">
-      <button
-        type="button"
-        id="attach"
-        title="Upload a .txt or .md file to the document collection"
-        class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 disabled:cursor-wait disabled:opacity-50"
-        aria-label="Attach file"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21.44 11.05 12.25 20.24a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-        </svg>
-      </button>
-      <button
-        type="button"
-        id="attachImage"
-        title="Upload an image with a description"
-        class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 disabled:cursor-wait disabled:opacity-50"
-        aria-label="Attach image"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-          <circle cx="8.5" cy="8.5" r="1.5"/>
-          <polyline points="21 15 16 10 5 21"/>
-        </svg>
-      </button>
-      <input
-        type="text"
-        id="input"
-        autocomplete="off"
-        placeholder="Ask a question…"
-        autofocus
-        class="flex-1 rounded-full border border-slate-300 bg-white px-4 py-3 text-base shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-      >
-      <button
-        type="submit"
-        id="send"
-        class="rounded-full bg-blue-600 px-5 py-3 font-medium text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-wait disabled:opacity-50"
-      >Send</button>
-    </form>
+    <main class="flex min-h-0 flex-1 flex-col">
+      <div id="welcome" class="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
+        <img src="/static/avatar.svg" alt="" class="h-24 w-24 select-none" draggable="false">
+        <h2 class="text-2xl font-extrabold text-prinny sm:text-3xl">What are we making today?</h2>
+        <p class="max-w-sm text-sm text-prinny-muted">Ask about products, prices, or custom orders.</p>
+        <div class="mt-2 flex max-w-lg flex-wrap justify-center gap-2">
+          <button type="button" data-suggest="What products do you offer?" class="rounded-full border-2 border-prinny-line bg-prinny-card px-4 py-2 text-sm font-semibold text-prinny-ink transition hover:border-prinny hover:text-prinny-dark">What products do you offer?</button>
+          <button type="button" data-suggest="Do you take custom orders?" class="rounded-full border-2 border-prinny-line bg-prinny-card px-4 py-2 text-sm font-semibold text-prinny-ink transition hover:border-prinny hover:text-prinny-dark">Do you take custom orders?</button>
+          <button type="button" data-suggest="How do I place an order?" class="rounded-full border-2 border-prinny-line bg-prinny-card px-4 py-2 text-sm font-semibold text-prinny-ink transition hover:border-prinny hover:text-prinny-dark">How do I place an order?</button>
+        </div>
+      </div>
+
+      <div id="log" class="flex-1 space-y-5 overflow-y-auto px-[max(1rem,calc((100%-44rem)/2))] py-6"></div>
+
+      <form id="form" class="px-[max(1rem,calc((100%-44rem)/2))] pb-4 pt-2">
+        <div class="flex items-center gap-1 rounded-3xl border-2 border-prinny-shadow bg-prinny-card p-2 shadow-retro focus-within:border-prinny">
+          <input type="file" id="file" accept=".txt,.md,.markdown,text/plain,text/markdown" class="hidden">
+          <button
+            type="button"
+            id="attach"
+            title="Upload a .txt or .md file to the document collection"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-prinny-dark transition hover:bg-prinny-soft disabled:cursor-wait disabled:opacity-50"
+            aria-label="Attach file"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.44 11.05 12.25 20.24a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+            </svg>
+          </button>
+          <button
+            type="button"
+            id="attachImage"
+            title="Upload an image with a description"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-prinny-dark transition hover:bg-prinny-soft disabled:cursor-wait disabled:opacity-50"
+            aria-label="Attach image"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+          </button>
+          <span class="mx-1 h-6 w-px shrink-0 bg-prinny-line"></span>
+          <input
+            type="text"
+            id="input"
+            autocomplete="off"
+            placeholder="Ask Prinny anything…"
+            autofocus
+            class="min-w-0 flex-1 bg-transparent px-1 py-2 text-base text-prinny-ink outline-none placeholder:text-prinny-muted"
+          >
+          <button
+            type="submit"
+            id="send"
+            aria-label="Send"
+            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-prinny text-white transition hover:bg-prinny-dark disabled:cursor-wait disabled:opacity-50"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 2 11 13"/>
+              <path d="M22 2 15 22l-4-9-9-4 20-7z"/>
+            </svg>
+          </button>
+        </div>
+      </form>
+    </main>
   </div>
-
-  <dialog id="imageDialog" class="rounded-2xl p-0 backdrop:bg-slate-900/40">
+  <dialog id="imageDialog" class="rounded-3xl border-2 border-prinny-shadow bg-prinny-card p-0 shadow-retro backdrop:bg-prinny-ink/40">
     <form id="imageForm" class="flex w-[28rem] max-w-[90vw] flex-col gap-3 p-5">
-      <h2 class="text-base font-semibold text-slate-900">Add an image</h2>
-      <label class="text-xs font-medium text-slate-600">
+      <h2 class="text-lg font-extrabold text-prinny">Add an image</h2>
+      <label class="text-xs font-bold text-prinny-muted">
         Image file
         <input
           type="file"
           id="imageFile"
           accept=".png,.jpg,.jpeg,.webp,.gif,image/png,image/jpeg,image/webp,image/gif"
           required
-          class="mt-1 block w-full text-sm text-slate-700 file:mr-3 file:rounded-full file:border-0 file:bg-slate-100 file:px-3 file:py-1.5 file:text-xs file:font-medium hover:file:bg-slate-200"
+          class="mt-1 block w-full text-sm text-prinny-ink file:mr-3 file:rounded-full file:border-0 file:bg-prinny-soft file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-prinny-dark hover:file:bg-prinny/20"
         >
       </label>
-      <label class="text-xs font-medium text-slate-600">
+      <label class="text-xs font-bold text-prinny-muted">
         <span class="flex items-center justify-between">
           <span>Description</span>
           {{if .CaptionEnabled}}
           <button
             type="button"
             id="autoCaption"
-            class="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-200 disabled:cursor-wait disabled:opacity-50"
+            class="rounded-full bg-prinny-soft px-3 py-1 text-[11px] font-bold text-prinny-dark hover:bg-prinny/20 disabled:cursor-wait disabled:opacity-50"
             title="Generate a description from the image using the vision model"
           >✨ Auto-caption</button>
           {{end}}
@@ -88,19 +161,19 @@
           rows="4"
           required
           placeholder="Describe what's in the image so it can be retrieved later."
-          class="mt-1 block w-full resize-none rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+          class="mt-1 block w-full resize-none rounded-xl border-2 border-prinny-line bg-white p-2 text-sm font-normal text-prinny-ink outline-none placeholder:text-prinny-muted focus:border-prinny focus:ring-2 focus:ring-prinny/30"
         ></textarea>
       </label>
       <div class="mt-1 flex justify-end gap-2">
         <button
           type="button"
           id="imageCancel"
-          class="rounded-full px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
+          class="rounded-full px-4 py-2 text-sm font-bold text-prinny-muted hover:bg-prinny-soft"
         >Cancel</button>
         <button
           type="submit"
           id="imageSubmit"
-          class="rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-wait disabled:opacity-50"
+          class="rounded-full border-2 border-prinny-shadow bg-prinny px-5 py-2 text-sm font-extrabold text-white shadow-retro-sm transition hover:bg-prinny-dark active:translate-x-px active:translate-y-px active:shadow-none disabled:cursor-wait disabled:opacity-50"
         >Save</button>
       </div>
     </form>
@@ -131,7 +204,7 @@
     row.className = "flex justify-center";
 
     const palette = {
-      info:    "bg-slate-100 text-slate-600 ring-slate-200",
+      info:    "bg-prinny-paper text-prinny-muted ring-prinny-line",
       success: "bg-emerald-50 text-emerald-700 ring-emerald-200",
       error:   "bg-rose-50 text-rose-700 ring-rose-200",
     };
@@ -168,14 +241,22 @@
     const isUser = role === "user";
 
     const row = document.createElement("div");
-    row.className = "flex " + (isUser ? "justify-end" : "justify-start");
+    row.className = "flex items-start gap-3 " + (isUser ? "justify-end" : "justify-start");
+    if (!isUser) row.appendChild(avatar());
+
+    const col = document.createElement("div");
+    col.className = "flex min-w-0 max-w-[85%] flex-col gap-1 " + (isUser ? "items-end" : "items-start");
+    const name = document.createElement("span");
+    name.className = "px-1 text-[11px] font-extrabold uppercase tracking-widest " + (isUser ? "text-prinny-muted" : "text-prinny");
+    name.textContent = isUser ? "You" : "Prinny";
+    col.appendChild(name);
 
     const bubble = document.createElement("div");
     if (isUser) {
-      bubble.className = "max-w-[80%] whitespace-pre-wrap rounded-2xl rounded-br-sm bg-blue-600 px-4 py-2 text-sm text-white shadow-sm";
+      bubble.className = "whitespace-pre-wrap rounded-2xl rounded-tr-sm border-2 border-prinny/30 bg-prinny-soft px-4 py-2.5 text-sm font-semibold text-prinny-ink";
       bubble.textContent = content;
     } else {
-      bubble.className = "prose prose-sm max-w-[80%] rounded-2xl rounded-bl-sm bg-slate-200 px-4 py-2 text-slate-900 shadow-sm prose-p:my-1 prose-headings:my-2 prose-pre:my-2 prose-ul:my-1 prose-ol:my-1";
+      bubble.className = "prose prose-sm max-w-none rounded-2xl rounded-tl-sm border-2 border-prinny-shadow bg-white px-4 py-3 text-prinny-ink shadow-retro-sm prose-li:marker:text-prinny prose-headings:text-prinny-dark prose-a:text-prinny-dark prose-strong:text-prinny-ink prose-code:text-prinny-dark prose-p:my-1 prose-headings:my-2 prose-pre:my-2 prose-ul:my-1 prose-ol:my-1";
       bubble.innerHTML = renderMarkdown(content);
     }
     // Helper attached to the bubble so callers don't have to know
@@ -185,25 +266,38 @@
       else bubble.innerHTML = renderMarkdown(text);
     };
 
-    row.appendChild(bubble);
+    col.appendChild(bubble);
+    row.appendChild(col);
     log.appendChild(row);
     log.scrollTop = log.scrollHeight;
     return bubble;
   }
 
+  // Prinny's face, shown beside every assistant bubble. offset
+  // lines it up with the bubble when a name label sits above it.
+  function avatar(offset = "mt-4") {
+    const img = document.createElement("img");
+    img.src = "/static/avatar.svg";
+    img.alt = "Prinny";
+    img.className = offset + " h-10 w-10 shrink-0 select-none";
+    img.draggable = false;
+    return img;
+  }
+
   // A small three-dot pulse used while we wait for the first token.
   function renderTyping() {
     const row = document.createElement("div");
-    row.className = "flex justify-start";
+    row.className = "flex items-start gap-3 justify-start";
+    row.appendChild(avatar("mt-0"));
 
     const bubble = document.createElement("div");
-    bubble.className = "rounded-2xl rounded-bl-sm bg-slate-200 px-4 py-3 shadow-sm";
+    bubble.className = "rounded-2xl rounded-tl-sm border-2 border-prinny-shadow bg-white px-4 py-3.5 shadow-retro-sm";
 
     const dots = document.createElement("div");
     dots.className = "flex gap-1";
     for (let i = 0; i < 3; i++) {
       const d = document.createElement("span");
-      d.className = "h-2 w-2 animate-bounce rounded-full bg-slate-500";
+      d.className = "h-2 w-2 animate-bounce rounded-full bg-prinny";
       d.style.animationDelay = `${i * 0.15}s`;
       dots.appendChild(d);
     }
@@ -214,6 +308,14 @@
     log.scrollTop = log.scrollHeight;
     return { row, bubble };
   }
+
+  // Welcome-screen suggestions drop their question into the chat.
+  document.querySelectorAll("[data-suggest]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      input.value = btn.dataset.suggest;
+      form.requestSubmit();
+    });
+  });
 
   attach.addEventListener("click", () => fileInput.click());
 

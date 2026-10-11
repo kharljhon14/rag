@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 -6 136 136" role="img" aria-label="Prinny">
+  <!-- Offset drop shadow, same as the logo lettering -->
+  <circle cx="66" cy="68" r="56" fill="#5E5752"/>
+  <!-- Face -->
+  <circle cx="62" cy="64" r="56" fill="#E05A47"/>
+  <!-- Groovy curl of hair -->
+  <path d="M46 12c6 8 18 10 22 2c3-6-4-10-8-6c-3 3 0 7 3 6" fill="none" stroke="#C84836" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Eyes -->
+  <ellipse cx="44" cy="58" rx="7" ry="10" fill="#3D3532"/>
+  <ellipse cx="80" cy="58" rx="7" ry="10" fill="#3D3532"/>
+  <circle cx="46.5" cy="54" r="2.8" fill="#FFFDFB"/>
+  <circle cx="82.5" cy="54" r="2.8" fill="#FFFDFB"/>
+  <!-- Cheeks -->
+  <ellipse cx="31" cy="76" rx="8" ry="5" fill="#F59482"/>
+  <ellipse cx="93" cy="76" rx="8" ry="5" fill="#F59482"/>
+  <!-- Smile -->
+  <path d="M50 78q12 14 24 0" fill="#3D3532" stroke="#3D3532" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M56 84.5q6 4 12 0" fill="none" stroke="#F59482" stroke-width="3" stroke-linecap="round"/>
+  <!-- Little craft flower tucked on the head -->
+  <g transform="translate(101 24)" stroke="#5E5752" stroke-width="2">
+    <circle cx="0" cy="-9" r="7" fill="#FFFDFB"/>
+    <circle cx="8.6" cy="-2.8" r="7" fill="#FFFDFB"/>
+    <circle cx="5.3" cy="7.3" r="7" fill="#FFFDFB"/>
+    <circle cx="-5.3" cy="7.3" r="7" fill="#FFFDFB"/>
+    <circle cx="-8.6" cy="-2.8" r="7" fill="#FFFDFB"/>
+    <circle cx="0" cy="0" r="5" fill="#C84836"/>
+  </g>
+</svg>
